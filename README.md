@@ -1,4 +1,6 @@
 # DSerial
+[![PyPI version](https://badge.fury.io/py/dserial.svg)](https://pypi.org/project/dserial/)
+
 
 ## 0. Introduction
 DSerial is dictionary serializer with type checking methodology by declared type hinting
@@ -7,6 +9,11 @@ DSerial is dictionary serializer with type checking methodology by declared type
 python 3.7 +
 
 ## 2. Quick start
+
+### 2.0. Installation
+```shell script
+pip3 install dserial
+```
 
 ### 2.1. Default type
 ```json
