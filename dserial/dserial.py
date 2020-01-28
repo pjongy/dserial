@@ -3,6 +3,11 @@ from abc import ABC, abstractmethod
 
 class TypeCheckingDictSerializer:
     def __init__(self, arg):
+        def adjust_type(target_type, source_value):
+            if not isinstance(source_value, target_type) and source_value is not None:
+                return target_type(source_value)
+            return source_value
+
         kwargs = {**arg}
         for attr, type_ in self.__annotations__.items():
             if attr not in kwargs:
@@ -16,9 +21,12 @@ class TypeCheckingDictSerializer:
                     try:
                         if issubclass(type_, TypeAnnotatedList):
                             list_element_type = type_.get_type()
-                            value = [list_element_type(elem) for elem in kwargs[attr]]
+                            value = [
+                                adjust_type(list_element_type, elem)
+                                for elem in kwargs[attr]
+                            ]
                         else:
-                            value = type_(kwargs[attr])
+                            value = adjust_type(type_, kwargs[attr])
                     except (TypeError, ValueError):
                         raise TypeError(
                             f'{self.__class__.__name__}.{attr} ' +
