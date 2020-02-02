@@ -1,13 +1,20 @@
 from abc import ABC, abstractmethod
 
 
+def deserialize(target):
+    if issubclass(type(target), TypeCheckingDictSerializer):
+        return target.to_dict()
+    return target
+
+
+def adjust_type(target_type, source_value):
+    if not isinstance(source_value, target_type) and source_value is not None:
+        return target_type(source_value)
+    return source_value
+
+
 class TypeCheckingDictSerializer:
     def __init__(self, arg):
-        def adjust_type(target_type, source_value):
-            if not isinstance(source_value, target_type) and source_value is not None:
-                return target_type(source_value)
-            return source_value
-
         kwargs = {**arg}
         for attr, type_ in self.__annotations__.items():
             if attr not in kwargs:
@@ -41,18 +48,13 @@ class TypeCheckingDictSerializer:
         return False
 
     def to_dict(self):
-        def adjust_type(target):
-            if issubclass(type(target), TypeCheckingDictSerializer):
-                return target.to_dict()
-            return target
-
         raw_dict = vars(self)
         return_dict = {}
         for key, value in raw_dict.items():
             if issubclass(type(value), list):
-                return_dict[key] = [adjust_type(x) for x in value]
+                return_dict[key] = [deserialize(x) for x in value]
             else:
-                return_dict[key] = adjust_type(value)
+                return_dict[key] = deserialize(value)
 
         return return_dict
 
